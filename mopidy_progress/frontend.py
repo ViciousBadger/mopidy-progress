@@ -1,6 +1,5 @@
 from mopidy.core.listener import CoreListener
 from mopidy.core.actor import Core
-from mopidy.core.playback import PlaybackController
 from mopidy.models import TlTrack, Track
 import threading
 import pykka
@@ -18,6 +17,7 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         self.core = core
         self.config = config
         self.state_path = os.path.join(Extension.get_data_dir(config), 'state.json')
+        self.prog = self.load_progress()
 
         self.timer = PeriodicTimer.start(
             1000, self.on_timer
@@ -25,6 +25,11 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         self.timer.start_ticking() # type: ignore
 
         logger.info('Initialized progress frontend!')
+
+    ####### Config
+
+    def should_remember(self, identifier: str) -> bool:
+        return identifier.startswith('local:track:Audiobooks') or identifier.startswith('podcast+')
 
     ####### Events
 
@@ -34,10 +39,8 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         identifier = str(track.uri)
 
         if time_position >= track.length: # type: ignore
-            logger.info('playback ended at end of track, clearing saved progress for %s', track.uri)
             self.clear_progress_for(identifier)
         else:
-            logger.info('playback ended prematurely, saving track progress for %s', track.uri)
             self.save_progress_for(identifier, time_position)
 
     def track_playback_started(self, tl_track: TlTrack):
@@ -45,20 +48,15 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
 
         prog = self.load_progress_for(str(track.uri))
         if prog > 0:
-            logger.info('restoring last saved playback time for %s', track.uri)
             if self.core.playback is not None:
                 self.core.playback.seek(prog)
 
     def on_timer(self):
-        track: Track | None = self.core.playback.get_current_track().get() # type: ignore
-        if track:
-            logger.info('track!!! %s', str(track.name))
-
-    def on_stop(self) -> None:
-        logger.info('on stop')
-
         self.save_active_track_progress()
 
+    def on_stop(self) -> None:
+        self.save_active_track_progress()
+        self.persist_progress()
         self.timer.stop() #type: ignore
         return super().on_stop()
 
@@ -74,10 +72,9 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
 
         return prog
 
-    def save_progress(self, prog: dict):
+    def persist_progress(self):
         with open(self.state_path, 'w') as file:
-            file.write(json.dumps(prog))
-        logger.info('Progress saved to %s', self.state_path)
+            file.write(json.dumps(self.prog))
 
     ####### Actions
 
@@ -86,21 +83,19 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         progress = self.core.playback.get_time_position().get() # type: ignore
         if track is not None:
             self.save_progress_for(str(track.uri), progress)
-            logger.info('saved active track progress %d', progress)
 
     def load_progress_for(self, identifier: str) -> int:
-        prog = self.load_progress()
-        return prog.get(identifier, -1)
+        if self.should_remember(identifier):
+            return self.prog.get(identifier, -1)
+        else:
+            return -1
 
     def save_progress_for(self, identifier: str, time_position: int):
-        prog = self.load_progress()
-        prog[identifier] = time_position
-        self.save_progress(prog)
+        if self.should_remember(identifier):
+            self.prog[identifier] = time_position
 
     def clear_progress_for(self, identifier: str):
-        prog = self.load_progress()
-        prog.pop(identifier)
-        self.save_progress(prog)
+        self.prog.pop(identifier)
 
 class PeriodicTimer(pykka.ThreadingActor):
     def __init__(self, period, callback):
