@@ -22,28 +22,9 @@ class Extension(ext.Extension):
 
     def get_config_schema(self):
         schema = super().get_config_schema()
-        # TODO: Comment in and edit, or remove entirely
-        # schema["username"] = config.String()
-        # schema["password"] = config.Secret()
+        schema["patterns"] = config.List()
         return schema
 
     def setup(self, registry):
-        # You will typically only implement one of the following things
-        # in a single extension.
-
-        # TODO: Edit or remove entirely
         from .frontend import ProgressFrontend
         registry.add("frontend", ProgressFrontend)
-
-        # TODO: Edit or remove entirely
-        # from .backend import FoobarBackend
-        # registry.add("backend", FoobarBackend)
-
-        # TODO: Edit or remove entirely
-        # registry.add(
-        #     "http:static",
-        #     {
-        #         "name": self.ext_name,
-        #         "path": str(pathlib.Path(__file__).parent / "static"),
-        #     },
-        # )

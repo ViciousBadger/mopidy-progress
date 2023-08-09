@@ -30,12 +30,40 @@ See https://mopidy.com/ext/progress/ for alternative installation methods.
 Configuration
 =============
 
-Before starting Mopidy, you must add configuration for
+The default configuration looks like this:
+
+    [progress]
+    enabled = true
+    patterns =
+        ^podcast\+
+
+With the defaults, progress will only be saved for tracks from the Mopidy-Podcast extension and nothing else.
+
+To change this behaviour, you must add configuration for
 Mopidy-Progress to your Mopidy configuration file::
 
     [progress]
-    # TODO: Add example of extension config
+    enabled = true
+    patterns = 
+        [pattern],
+        [pattern],
+        ...
 
+The 'patterns' setting determines which tracks progress will be remembered for based on their track URI.
+
+You can find the URI of a track in several ways, one of them being adding the track to any playlist and then opening the playlist file in a text editor. (By default playlists are stored in ~/.local/share/mopidy/m3u/)
+
+Patterns use regular expression matching. Be aware that some symbols will have special meaning in regular expressions and must be escaped, like the '+' symbol this pattern:
+
+    ^podcast\+
+
+The above pattern matches any track with an URI starting with 'podcast+', which will be any track from the Mopidy-Podcast extension.
+
+Another example of an expression could be:
+
+    ^local:track:Audiobooks
+
+This one matches all tracks in a special user-defined directory of the Mopidy-Local extension. For more information on such directories, consult the readme for [Mopidy-Local](https://github.com/mopidy/mopidy-local).
 
 Project resources
 =================

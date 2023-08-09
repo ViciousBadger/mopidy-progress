@@ -6,6 +6,7 @@ import pykka
 import json
 import os
 import logging
+import re
 
 from . import Extension
 
@@ -29,7 +30,13 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
     ####### Config
 
     def should_remember(self, identifier: str) -> bool:
-        return identifier.startswith('local:track:Audiobooks') or identifier.startswith('podcast+')
+        patterns = tuple( pattern for pattern in self.config['progress']['patterns'] )
+        for pattern in patterns:
+            if re.match(pattern, identifier):
+                return True
+        return False
+        # logger.info(patterns)
+        # return identifier.startswith('local:track:Audiobooks') or identifier.startswith('podcast+')
 
     ####### Events
 
@@ -38,7 +45,7 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
 
         identifier = str(track.uri)
 
-        if time_position >= track.length: # type: ignore
+        if track.length is not None and time_position >= track.length: # type: ignore
             self.clear_progress_for(identifier)
         else:
             self.save_progress_for(identifier, time_position)
