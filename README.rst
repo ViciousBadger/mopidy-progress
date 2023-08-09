@@ -36,6 +36,7 @@ Configuration
 
 The default configuration looks like this:
 
+
     [progress]
     enabled = true
     patterns =
