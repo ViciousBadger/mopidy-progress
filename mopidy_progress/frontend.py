@@ -10,7 +10,7 @@ import re
 
 from . import Extension
 
-logger = logging.getLogger('mopidy_progress')
+logger = logging.getLogger(__name__)
 
 class ProgressFrontend(pykka.ThreadingActor, CoreListener):
     def __init__(self, config: dict, core: Core):
@@ -35,8 +35,6 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
             if re.match(pattern, identifier):
                 return True
         return False
-        # logger.info(patterns)
-        # return identifier.startswith('local:track:Audiobooks') or identifier.startswith('podcast+')
 
     ####### Events
 
