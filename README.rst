@@ -16,6 +16,12 @@ Mopidy-Progress
 
 Remember and restore playback progress for specified tracks.
 
+The extension can be configured to save progress on any track you want to based on pattern matching, meaning you can enable it only for relevant media, e.g. podcasts and audiobooks.
+
+Progress is saved continually while a track is being played. Whenever that same track is played again, the extension will restore the saved progress so you can listen from where you left off.
+
+When a track is played to its end, the saved progress will reset. It is also possible to reset the saved progress by stopping (not pausing) the track.
+
 
 Installation
 ============
