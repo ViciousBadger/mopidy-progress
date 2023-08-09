@@ -40,6 +40,7 @@ The default configuration looks like this:
     [progress]
     enabled = true
     patterns =
+
         ^podcast\+
 
 With the defaults, progress will only be saved for tracks from the Mopidy-Podcast extension and nothing else.
@@ -50,6 +51,7 @@ Mopidy-Progress to your Mopidy configuration file::
     [progress]
     enabled = true
     patterns = 
+
         [pattern],
         [pattern],
         ...
