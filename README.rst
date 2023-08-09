@@ -24,8 +24,6 @@ Install by running::
 
     python3 -m pip install Mopidy-Progress
 
-See https://mopidy.com/ext/progress/ for alternative installation methods.
-
 
 Configuration
 =============
