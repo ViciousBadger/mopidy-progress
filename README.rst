@@ -34,8 +34,7 @@ Install by running::
 Configuration
 =============
 
-The default configuration looks like this:
-
+The default configuration looks like this::
 
     [progress]
     enabled = true
