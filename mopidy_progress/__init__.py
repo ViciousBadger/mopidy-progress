@@ -23,6 +23,7 @@ class Extension(ext.Extension):
     def get_config_schema(self):
         schema = super().get_config_schema()
         schema["patterns"] = config.List()
+        schema["min_length_minutes"] = config.Integer(minimum=0)
         return schema
 
     def setup(self, registry):

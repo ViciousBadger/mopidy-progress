@@ -29,11 +29,17 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
 
     ####### Config
 
-    def should_remember(self, identifier: str) -> bool:
+    def should_remember(self, track: Track) -> bool:
         patterns = tuple( pattern for pattern in self.config['progress']['patterns'] )
         for pattern in patterns:
-            if re.match(pattern, identifier):
+            if re.match(pattern, str(track.uri)):
                 return True
+
+        min_length_minutes = self.config['progress']['min_length_minutes']
+        if min_length_minutes > 0 \
+            and track.length is not None \
+            and track.length > 1000 * 60 * min_length_minutes: # type: ignore
+            return True
         return False
 
     ####### Events
@@ -41,17 +47,15 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
     def track_playback_ended(self, tl_track: TlTrack, time_position: int):
         track: Track = tl_track.track # type: ignore
 
-        identifier = str(track.uri)
-
         if track.length is not None and time_position >= track.length: # type: ignore
-            self.clear_progress_for(identifier)
+            self.clear_progress_for(track)
         else:
-            self.save_progress_for(identifier, time_position)
+            self.save_progress_for(track, time_position)
 
     def track_playback_started(self, tl_track: TlTrack):
         track: Track = tl_track.track # type: ignore
 
-        prog = self.load_progress_for(str(track.uri))
+        prog = self.load_progress_for(track)
         if prog > 0:
             if self.core.playback is not None:
                 self.core.playback.seek(prog)
@@ -87,20 +91,20 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         track: Track | None = self.core.playback.get_current_track().get() # type: ignore
         progress = self.core.playback.get_time_position().get() # type: ignore
         if track is not None:
-            self.save_progress_for(str(track.uri), progress)
+            self.save_progress_for(track, progress)
 
-    def load_progress_for(self, identifier: str) -> int:
-        if self.should_remember(identifier):
-            return self.prog.get(identifier, -1)
+    def load_progress_for(self, track: Track) -> int:
+        if self.should_remember(track):
+            return self.prog.get(str(track.uri), -1)
         else:
             return -1
 
-    def save_progress_for(self, identifier: str, time_position: int):
-        if self.should_remember(identifier):
-            self.prog[identifier] = time_position
+    def save_progress_for(self, track: Track, time_position: int):
+        if self.should_remember(track):
+            self.prog[str(track.uri)] = time_position
 
-    def clear_progress_for(self, identifier: str):
-        self.prog.pop(identifier)
+    def clear_progress_for(self, track: Track):
+        self.prog.pop(str(track.uri))
 
 class PeriodicTimer(pykka.ThreadingActor):
     def __init__(self, period, callback):

@@ -38,17 +38,19 @@ The default configuration looks like this::
 
     [progress]
     enabled = true
+    min_length_minutes = 30
     patterns =
 
         ^podcast\+
 
-With the defaults, progress will only be saved for tracks from the Mopidy-Podcast extension and nothing else.
+With the defaults, progress will be saved for tracks from the Mopidy-Podcast extension and tracks that are longer than 30 minutes. Other tracks will always play from the beginning as normal.
 
 To change this behaviour, you must add configuration for
 Mopidy-Progress to your Mopidy configuration file::
 
     [progress]
     enabled = true
+    min_length_minutes = [integer]
     patterns = 
 
         [pattern],
