@@ -104,7 +104,7 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
             self.prog[str(track.uri)] = time_position
 
     def clear_progress_for(self, track: Track):
-        self.prog.pop(str(track.uri))
+        self.prog.pop(str(track.uri), None)
 
 class PeriodicTimer(pykka.ThreadingActor):
     def __init__(self, period, callback):
