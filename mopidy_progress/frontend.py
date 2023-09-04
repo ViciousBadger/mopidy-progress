@@ -21,9 +21,14 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         self.prog = self.load_progress()
 
         self.timer = PeriodicTimer.start(
-            1000, self.on_timer
+            1, self.on_timer
         ).proxy()
         self.timer.start_ticking() # type: ignore
+
+        self.persist_timer = PeriodicTimer.start(
+            30, self.on_persist_timer
+        ).proxy()
+        self.persist_timer.start_ticking() # type: ignore
 
         logger.info('Initialized progress frontend!')
 
@@ -62,6 +67,9 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
 
     def on_timer(self):
         self.save_active_track_progress()
+
+    def on_persist_timer(self):
+        self.persist_progress()
 
     def on_stop(self) -> None:
         self.save_active_track_progress()
@@ -109,7 +117,7 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
 class PeriodicTimer(pykka.ThreadingActor):
     def __init__(self, period, callback):
         super().__init__()
-        self.period = period / 1000.0
+        self.period = period
         self.stop_pending = False
         self.callback = callback
 
