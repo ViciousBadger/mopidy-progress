@@ -75,6 +75,7 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         self.save_active_track_progress()
         self.persist_progress()
         self.timer.stop() #type: ignore
+        self.persist_timer.stop() #type: ignore
         return super().on_stop()
 
     ####### FS access
