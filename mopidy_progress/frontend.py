@@ -26,7 +26,7 @@ class ProgressFrontend(pykka.ThreadingActor, CoreListener):
         self.timer.start_ticking() # type: ignore
 
         self.persist_timer = PeriodicTimer.start(
-            30, self.on_persist_timer
+            5, self.on_persist_timer
         ).proxy()
         self.persist_timer.start_ticking() # type: ignore
 
