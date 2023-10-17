@@ -74,7 +74,7 @@ You can find the URI of a track in several ways, one of them being adding the tr
 
 Patterns use regular expression matching. Be aware that some symbols will have special meaning in regular expressions and must be escaped, like the '+' symbol this pattern:
 
-    ^podcast\+
+    ^podcast\\+
 
 The above pattern matches any track with an URI starting with 'podcast+', which will be any track from the Mopidy-Podcast extension.
 
