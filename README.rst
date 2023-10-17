@@ -22,6 +22,17 @@ Progress is saved continually while a track is being played. Whenever that same 
 
 When a track is played to its end, the saved progress will reset. It is also possible to reset the saved progress by stopping (not pausing) the track.
 
+Project status
+============
+
+The plugin is reasonably stable as far as I know.
+
+I am personally satisfied with the state of the project as it fulfills my own needs, but should you want it to do more, please submit an issue or a pull request.
+
+Known issues
+============
+
+When exiting mopidy with this plugin installed, the process will hang for anywhere between 0-5 seconds. This is because the timer that auto-saves track progress does not stop properly upon exit. If you, the reader, know how to solve this though your knowledge of Python and the Pykka library, please let me know!
 
 Installation
 ============
